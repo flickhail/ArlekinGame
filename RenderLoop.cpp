@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Callback.h"
 #include "Texture.h"
+#include "Camera.h"
 
 #include <glad/glad.h>
 #include <glfw3.h>
@@ -37,6 +38,9 @@ glm::vec3 cameraRotation = glm::vec3(0.0f);
 
 glm::mat4 cameraView = glm::mat4(1.0f);
 glm::mat4 cameraProjection = glm::mat4(1.0f);
+
+Camera camera{ cameraPos, cameraRotation, cameraScale, glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f };
+
 
 // Runs the main loop of a game
 int Run()
@@ -147,23 +151,17 @@ int Run()
 	Shader shader{ vertSource, fragSource };
 	Texture container{ "container.jpg" };
 	Texture face{ "awesomeface.png", GL_RGBA };
+	std::cout << camera;
 
 	shader.Use();
 	shader.SetInt("texSample1", 0);
 	shader.SetInt("texSample2", 1);
 
-	glm::mat4 transform = glm::mat4(1.0f);
-	glm::mat4 boxModel = glm::mat4(1.0f);
-
-	boxModel = glm::translate(boxModel, boxPosition);
-	boxModel = glm::scale(boxModel, glm::vec3(1.0f));
-	boxModel = glm::rotate(boxModel, boxRotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-	boxModel = glm::rotate(boxModel, boxRotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-	boxModel = glm::rotate(boxModel, boxRotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 boxModel;
 
 	//projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.10f, 100.0f);
 	//or
-	cameraProjection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
+	//cameraProjection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!glfwWindowShouldClose(mainWindow))
@@ -172,8 +170,8 @@ int Run()
 
 		performanceTimer.Reset();
 		ProcessInput(mainWindow);
-
-		cameraView = Transform(cameraPos, cameraScale, cameraRotation);
+		std::cout << camera;
+		//cameraView = Transform(cameraPos, cameraScale, cameraRotation);
 
 		shader.Use();
 		container.Bind(GL_TEXTURE0);
@@ -185,8 +183,8 @@ int Run()
 			boxModel = Transform(cubePositions[i], boxScale, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
 
 			shader.SetMat4f("model", glm::value_ptr(boxModel));
-			shader.SetMat4f("view", glm::value_ptr(cameraView));
-			shader.SetMat4f("projection", glm::value_ptr(cameraProjection));
+			shader.SetMat4f("view", glm::value_ptr(camera.View()));
+			shader.SetMat4f("projection", glm::value_ptr(camera.Projection()));
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -195,7 +193,7 @@ int Run()
 
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
-		std::cout << "FPS: [" << 1.0 / performanceTimer.Elapsed() << "]\n";
+		//std::cout << "FPS: [" << 1.0 / performanceTimer.Elapsed() << "]\n";
 	}
 
 	glfwTerminate();
@@ -227,16 +225,16 @@ static void ProcessInput(GLFWwindow* window)
 
 	float cameraSpeed = 0.01f;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos += cameraSpeed * glm::vec3(1.0f, 0.0f, 0.0f);
+		camera.Position(camera.Position() + cameraSpeed * glm::vec3(1.0f, 0.0f, 0.0f));
 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += cameraSpeed * glm::vec3(-1.0f, 0.0f, 0.0f);
+		camera.Position(camera.Position() + cameraSpeed * glm::vec3(-1.0f, 0.0f, 0.0f));
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * glm::vec3(0.0f, -1.0f, 0.0f);
+		camera.Position(camera.Position() + cameraSpeed * glm::vec3(0.0f, -1.0f, 0.0f));
 
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos += cameraSpeed * glm::vec3(0.0f, 1.0f, 0.0f);
+		camera.Position(camera.Position() + cameraSpeed * glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Resize(GLFWwindow* window, int width, int height)
