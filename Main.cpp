@@ -1,9 +1,9 @@
 #include "Main.h"
-#include <iostream>
 
 int main()
 {
-	Run();
+	if (Run() == -1)
+		std::cout << "Run() returned -1\n";
 	
 	return 0;
 }

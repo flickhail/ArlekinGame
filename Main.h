@@ -1,4 +1,3 @@
 #pragma once
-
-
-void Run();
+#include "RenderLoop.h"
+#include <iostream>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -71,11 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\include;D:\heh\projects\prog\cpp\lib\compiled\GLAD\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\include;D:\heh\projects\prog\cpp\lib\compiled\GLAD\include;D:\heh\projects\prog\cpp\lib\compiled\;$(IncludePath)</IncludePath>
     <LibraryPath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\include;D:\heh\projects\prog\cpp\lib\compiled\GLAD\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\include;D:\heh\projects\prog\cpp\lib\compiled\GLAD\include;D:\heh\projects\prog\cpp\lib\compiled\;$(IncludePath)</IncludePath>
     <LibraryPath>D:\heh\projects\prog\cpp\lib\compiled\GLFW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -143,15 +143,22 @@
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="glad\src\glad.c" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="shaders\basic.vert" />
+    <None Include="shaders\basic.vert">
+      <FileType>Document</FileType>
+    </None>
     <ClCompile Include="RenderLoop.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Callback.h" />
     <ClInclude Include="Console.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="RenderLoop.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
