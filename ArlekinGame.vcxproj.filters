@@ -75,5 +75,9 @@
   <ItemGroup>
     <None Include="shaders\basic.vert" />
     <None Include="shaders\basic.frag" />
+    <None Include="shaders\simpColor.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\simpColor.frag" />
   </ItemGroup>
 </Project>

@@ -29,6 +29,9 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
 		vertexCode = vertexStream.str();
 		fragmentCode = fragmentStream.str();
+
+		vertexFStream.close();
+		fragmentFStream.close();
 	}
 	catch (std::ifstream::failure)
 	{

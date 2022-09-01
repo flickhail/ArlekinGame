@@ -8,7 +8,7 @@ class Camera
 public:
 	//						[CONSTRUCTORS]
 
-	Camera(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale, float fov, float aspectRatio, float near, float far);
+	Camera(const glm::vec3& position, const glm::vec3& target, float fov, float aspectRatio, float near, float far);
 	Camera() = delete;
 	Camera(const Camera& camera) = delete;
 
@@ -16,25 +16,26 @@ public:
 	//						[GETTERS]
 
 	const glm::vec3& Position()		const;
-	const glm::vec3& Rotation()		const;
-	const glm::vec3& Scale()		const;
-	const glm::mat4& View()			const;
 	const glm::mat4& Projection()	const;
 	float			 Fov()			const;
 	float			 Aspect()		const;
 	float			 NearPlane()	const;
 	float			 FarPlane()		const;
 
+	const glm::vec3& Front()		const;
+	const glm::vec3& Right()		const;
 
 	//						[SETTERS]
 
 	void Position	(const glm::vec3& newPosition);
-	void Rotation	(const glm::vec3& newRotation);
 	void Projection	(float newFov, float newAspectRatio, float newNearPlane, float newFarPlane);
-
+	void Fov		(float newFov);
 
 	//						[UTILITY]
 
+	glm::mat4 LookAt(const glm::vec3& target);
+	void Rotate(float deltaYaw, float deltaPitch);
+	void Zoom(float scrollOffset);
 	std::string ToString()	const;
 
 
@@ -44,17 +45,24 @@ public:
 	
 
 private:
-	glm::vec3 m_position = glm::vec3(0.0f);
-	glm::vec3 m_rotation = glm::vec3(0.0f);
-	glm::vec3 m_scale = glm::vec3(1.0f);
+	glm::vec3 m_Position = glm::vec3(0.0f);
+	glm::vec3 m_Front = glm::vec3(0.0f);
+	glm::vec3 m_WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 m_Right = glm::vec3(0.0f);
+	glm::vec3 m_LocalUp = glm::vec3(0.0f);
 
+	// m_Fov in radians
 	float m_Fov;
 	float m_AspectRatio;
 	float m_NearPlane;
 	float m_FarPlane;
 
-	glm::mat4 m_view;
-	glm::mat4 m_projection;
+	glm::mat4 m_Projection;
+
+
+	// in radians
+	float m_Pitch{};
+	float m_Yaw{};
 
 	glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rotation) const;
 };

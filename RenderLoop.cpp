@@ -1,12 +1,12 @@
 #include "RenderLoop.h"
+#include "Main.h"
 #include "Timer.h"
 #include "Shader.h"
 #include "Callback.h"
 #include "Texture.h"
 #include "Camera.h"
 
-#include <glad/glad.h>
-#include <glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,42 +14,63 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+#include <format>
 #include <vector>
+#include <filesystem>
 
-static bool GraphicsInit();
 static void ProcessInput(GLFWwindow* window);
 static glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rotation);
+void RenderObjects(Shader& shader);
+void RenderBiggerObjects(Shader& shader);
 
-static GLFWwindow* mainWindow{ nullptr };
-int windowWidth{ 800 };
-int windowHeight{ 600 };
-
-std::string ShaderPath{ "shaders\\" };
-std::string vertSource{ ShaderPath + "basic.vert" };
-std::string fragSource{ ShaderPath + "basic.frag" };
+std::string ShaderPath	{ "shaders\\" };
+std::string vertBasic	{ ShaderPath + "basic.vert" };
+std::string fragBasic	{ ShaderPath + "basic.frag" };
+std::string vertStencil	{ ShaderPath + "simpColor.vert" };
+std::string fragStencil	{ ShaderPath + "simpColor.frag" };
 
 glm::vec3 boxPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 boxRotation = glm::vec3(glm::radians(45.0f), 0.0f, 0.0f);
 glm::vec3 boxScale = glm::vec3(1.0f, 1.0f, 1.0f);
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -3.0f);
-glm::vec3 cameraScale = glm::vec3(1.0f);
-glm::vec3 cameraRotation = glm::vec3(0.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraTarget = glm::vec3(0.0f);
 
-glm::mat4 cameraView = glm::mat4(1.0f);
-glm::mat4 cameraProjection = glm::mat4(1.0f);
+extern Camera camera{ cameraPos, cameraTarget, glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f };
 
-Camera camera{ cameraPos, cameraRotation, cameraScale, glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f };
 
+
+std::vector<glm::vec3> cubePositions {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
+float deltaTime{};
 
 // Runs the main loop of a game
 int Run()
 {
-	if (!GraphicsInit())
-	{
-		std::cout << "Error: GLFW or GLAD initialization unsuccessful\n";
-		return -1;
-	}
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	glfwSetFramebufferSizeCallback(mainWindow, Callback::Resize);
+	glfwSetCursorPosCallback(mainWindow, Callback::MouseMove);
+	glfwSetScrollCallback(mainWindow, Callback::MouseScroll);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	//float vertices[] = {
 	//	// positions          // colors           // texture coords
@@ -108,21 +129,8 @@ int Run()
 		2, 3, 0
 	};
 
-	std::vector<glm::vec3> cubePositions {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	glEnable(GL_DEPTH_TEST);
-
+	
+	
 	unsigned int VAO{};
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -147,49 +155,56 @@ int Run()
 	//glEnableVertexAttribArray(2);
 
 	Timer performanceTimer{};
-	Timer transformTimer{};
-	Shader shader{ vertSource, fragSource };
-	Texture container{ "container.jpg" };
-	Texture face{ "awesomeface.png", GL_RGBA };
-	std::cout << camera;
+	Timer globalTimer{};
+	Shader shader{ vertBasic, fragBasic };
+	Shader shaderStencil{ vertStencil, fragStencil };
+
+	Texture container	{ "container.jpg" };
+	Texture face		{ "awesomeface.png", GL_RGBA };
 
 	shader.Use();
 	shader.SetInt("texSample1", 0);
 	shader.SetInt("texSample2", 1);
 
-	glm::mat4 boxModel;
+	float lastFrame{};
 
-	//projection = glm::ortho(0.0f, static_cast<float>(windowWidth), 0.0f, static_cast<float>(windowHeight), 0.10f, 100.0f);
-	//or
-	//cameraProjection = glm::perspective(glm::radians(45.0f), (float)windowWidth / (float)windowHeight, 0.1f, 100.0f);
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	while (!glfwWindowShouldClose(mainWindow))
 	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		performanceTimer.Reset();
+
+		float currentFrame = globalTimer.Elapsed();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
 		ProcessInput(mainWindow);
-		std::cout << camera;
-		//cameraView = Transform(cameraPos, cameraScale, cameraRotation);
+
+		glm::mat4 view = camera.LookAt(camera.Position() + camera.Front());
+
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 
 		shader.Use();
+		shader.SetMat4f("view", glm::value_ptr(view));
+		shader.SetMat4f("projection", glm::value_ptr(camera.Projection()));
 		container.Bind(GL_TEXTURE0);
 		face.Bind(GL_TEXTURE1);
 		glBindVertexArray(VAO);
+		RenderObjects(shader);
 
-		for (int i{ 0 }; i < cubePositions.size(); ++i)
-		{
-			boxModel = Transform(cubePositions[i], boxScale, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		glStencilMask(0x00);
+		glDisable(GL_DEPTH_TEST);
 
-			shader.SetMat4f("model", glm::value_ptr(boxModel));
-			shader.SetMat4f("view", glm::value_ptr(camera.View()));
-			shader.SetMat4f("projection", glm::value_ptr(camera.Projection()));
+		shaderStencil.Use();
+		shaderStencil.SetMat4f("view", glm::value_ptr(view));
+		shaderStencil.SetMat4f("projection", glm::value_ptr(camera.Projection()));
+		RenderBiggerObjects(shaderStencil);
 
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glEnable(GL_DEPTH_TEST);
 
 		glfwSwapBuffers(mainWindow);
 		glfwPollEvents();
@@ -198,6 +213,32 @@ int Run()
 
 	glfwTerminate();
 	return 0;
+}
+
+void RenderBiggerObjects(Shader& shader)
+{
+	for (int i{ 0 }; i < cubePositions.size(); ++i)
+	{
+		glm::mat4 boxModel;
+		boxModel = Transform(cubePositions[i], boxScale * 1.2f, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
+
+		shader.SetMat4f("model", glm::value_ptr(boxModel));
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
+}
+
+void RenderObjects(Shader& shader)
+{
+	for (int i{ 0 }; i < cubePositions.size(); ++i)
+	{
+		glm::mat4 boxModel;
+		boxModel = Transform(cubePositions[i], boxScale, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
+
+		shader.SetMat4f("model", glm::value_ptr(boxModel));
+
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
 }
 
 // translation - vector by which you want to change position
@@ -216,6 +257,7 @@ static glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rot
 	return transform;
 }
 
+// Processes the input on a given window
 static void ProcessInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -223,61 +265,21 @@ static void ProcessInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	float cameraSpeed = 0.01f;
+	const float cameraSpeed = 2.5f * deltaTime;
+
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		camera.Position(camera.Position() + cameraSpeed * glm::vec3(1.0f, 0.0f, 0.0f));
+		camera.Position(camera.Position() - cameraSpeed * camera.Right());
 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		camera.Position(camera.Position() + cameraSpeed * glm::vec3(-1.0f, 0.0f, 0.0f));
+		camera.Position(camera.Position() + cameraSpeed * camera.Right());
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		camera.Position(camera.Position() + cameraSpeed * glm::vec3(0.0f, -1.0f, 0.0f));
+		camera.Position(camera.Position() + cameraSpeed * camera.Front());
 
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		camera.Position(camera.Position() + cameraSpeed * glm::vec3(0.0f, 1.0f, 0.0f));
+		camera.Position(camera.Position() - cameraSpeed * camera.Front());
 }
 
-void Resize(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-	windowHeight = height;
-	windowWidth = width;
-	float aspectRatio = static_cast<float>(windowWidth) / static_cast<float>(windowHeight);
-	cameraProjection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
-}
 
-static bool GraphicsInit()
-{
-	if (glfwInit() == GLFW_FALSE)
-	{
-		std::cout << "Error: glfwInit() unsuccessful" << std::endl;
-		return false;
-	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	mainWindow = glfwCreateWindow(windowWidth, windowHeight, "ArlekinGame", nullptr, nullptr);
-	if (mainWindow == nullptr)
-	{
-		std::cout << "Error: failed co create a window" << std::endl;
-		glfwTerminate();
-		return false;
-	}
-
-	glfwMakeContextCurrent(mainWindow);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Error: failed to load GLAD" << std::endl;
-		return false;
-	}
-
-	glViewport(0, 0, windowWidth, windowHeight);
-	glfwSetFramebufferSizeCallback(mainWindow, Resize);
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-	return true;
-}
 

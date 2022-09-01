@@ -11,4 +11,5 @@ out vec4 OutColor;
 void main()
 {
 	OutColor = mix(texture(texSample1, FragTexPos), texture(texSample2, FragTexPos), 0.2);
+	//OutColor = vec4(vec3(gl_FragCoord.z), 1.0);
 }

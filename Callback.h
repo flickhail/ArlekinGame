@@ -5,4 +5,6 @@
 namespace Callback
 {
 	void Resize(GLFWwindow* window, int width, int height);
+	void MouseMove(GLFWwindow* window, double xPos, double yPos);
+	void MouseScroll(GLFWwindow* window, double xOffset, double yOffset);
 }
