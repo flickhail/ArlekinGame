@@ -64,7 +64,6 @@ int Run()
 	glfwSetCursorPosCallback(mainWindow, Callback::MouseMove);
 	glfwSetScrollCallback(mainWindow, Callback::MouseScroll);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -131,32 +130,25 @@ int Run()
 
 	
 	
-	unsigned int VAO{};
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	unsigned int cubeVAO{};
+	glGenVertexArrays(1, &cubeVAO);
+	glBindVertexArray(cubeVAO);
 
-	unsigned int VBO{};
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	unsigned int cubeVBO{};
+	glGenBuffers(1, &cubeVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	/*unsigned int EBO{};	
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	//glEnableVertexAttribArray(2);
+	glBindVertexArray(0);
 
 	Timer performanceTimer{};
 	Timer globalTimer{};
-	Shader shader{ vertBasic, fragBasic };
+	Shader shader		{ vertBasic,   fragBasic   };
 	Shader shaderStencil{ vertStencil, fragStencil };
 
 	Texture container	{ "container.jpg" };
@@ -177,32 +169,42 @@ int Run()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		
 		ProcessInput(mainWindow);
 
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		
 		glm::mat4 view = camera.LookAt(camera.Position() + camera.Front());
+		glm::mat4 projection = camera.Projection();
+
+		shader.Use();
+		shader.SetMat4f("view", glm::value_ptr(view));
+		shader.SetMat4f("projection", glm::value_ptr(projection));
+
+		shaderStencil.Use();
+		shaderStencil.SetMat4f("view", glm::value_ptr(view));
+		shaderStencil.SetMat4f("projection", glm::value_ptr(projection));
 
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
 
-		shader.Use();
-		shader.SetMat4f("view", glm::value_ptr(view));
-		shader.SetMat4f("projection", glm::value_ptr(camera.Projection()));
+		glBindVertexArray(cubeVAO);
 		container.Bind(GL_TEXTURE0);
 		face.Bind(GL_TEXTURE1);
-		glBindVertexArray(VAO);
 		RenderObjects(shader);
 
 		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 		glStencilMask(0x00);
 		glDisable(GL_DEPTH_TEST);
 
-		shaderStencil.Use();
-		shaderStencil.SetMat4f("view", glm::value_ptr(view));
-		shaderStencil.SetMat4f("projection", glm::value_ptr(camera.Projection()));
+		glBindVertexArray(cubeVAO);
+		container.Bind(GL_TEXTURE0);
+		face.Bind(GL_TEXTURE1);
 		RenderBiggerObjects(shaderStencil);
 
+		glBindVertexArray(0);
+
+		glStencilMask(0xFF);
 		glEnable(GL_DEPTH_TEST);
 
 		glfwSwapBuffers(mainWindow);
@@ -210,16 +212,20 @@ int Run()
 		//std::cout << "FPS: [" << 1.0 / performanceTimer.Elapsed() << "]\n";
 	}
 
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
+
 	glfwTerminate();
 	return 0;
 }
 
 void RenderBiggerObjects(Shader& shader)
 {
+	shader.Use();
 	for (int i{ 0 }; i < cubePositions.size(); ++i)
 	{
 		glm::mat4 boxModel;
-		boxModel = Transform(cubePositions[i], boxScale * 1.2f, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
+		boxModel = Transform(cubePositions[i], boxScale * 1.1f, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
 
 		shader.SetMat4f("model", glm::value_ptr(boxModel));
 
@@ -229,6 +235,7 @@ void RenderBiggerObjects(Shader& shader)
 
 void RenderObjects(Shader& shader)
 {
+	shader.Use();
 	for (int i{ 0 }; i < cubePositions.size(); ++i)
 	{
 		glm::mat4 boxModel;
