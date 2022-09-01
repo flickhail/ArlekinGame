@@ -64,7 +64,7 @@ int Run()
 	glfwSetCursorPosCallback(mainWindow, Callback::MouseMove);
 	glfwSetScrollCallback(mainWindow, Callback::MouseScroll);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
@@ -183,7 +183,6 @@ int Run()
 
 		glm::mat4 view = camera.LookAt(camera.Position() + camera.Front());
 
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
 		glStencilMask(0xFF);
 
