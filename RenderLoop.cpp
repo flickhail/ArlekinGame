@@ -127,8 +127,6 @@ int Run()
 		0, 1, 2,
 		2, 3, 0
 	};
-
-	
 	
 	unsigned int cubeVAO{};
 	glGenVertexArrays(1, &cubeVAO);
