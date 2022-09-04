@@ -1,19 +1,19 @@
 #include "Main.h"
 
 #include <iostream>
+#include <stdexcept>
 
 GLFWwindow* mainWindow { nullptr };
 extern int windowWidth { 800 };
 extern int windowHeight{ 600 };
 
 // Initializes the graphics routine
-static bool GraphicsInit()
+// 
+// Exceptions: [runtime_error]
+static void GraphicsInit()
 {
 	if (glfwInit() == GLFW_FALSE)
-	{
-		std::cout << "Error: glfwInit() unsuccessful" << std::endl;
-		return false;
-	}
+		throw std::runtime_error("Error: glfwInit() unsuccessful");
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -22,35 +22,36 @@ static bool GraphicsInit()
 	mainWindow = glfwCreateWindow(windowWidth, windowHeight, "ArlekinGame", nullptr, nullptr);
 	if (mainWindow == nullptr)
 	{
-		std::cout << "Error: failed co create a window" << std::endl;
 		glfwTerminate();
-		return false;
+		throw std::runtime_error("Error: failed co create a window");
 	}
 
 	glfwMakeContextCurrent(mainWindow);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Error: failed to load GLAD" << std::endl;
-		return false;
+		glfwTerminate();
+		throw std::runtime_error("Error: failed to load GLAD");
 	}
 
 	glViewport(0, 0, windowWidth, windowHeight);
-	return true;
 }
 
 int main()
 {
-	if (!GraphicsInit())
+	try
 	{
-		std::cout << "Error: Graphics routine couldn't initialize\n";
-		return -1;
+		GraphicsInit();
+		Run();
 	}
 
-	if (Run())
+	catch (const std::runtime_error& except)
 	{
-		std::cout << "Error: Run() returned error\n";
-		return -1;
+		std::cout << "Runtime exception has occured:\n" << except.what() << std::endl;
+	}
+	catch (const std::exception& except)
+	{
+		std::cout << "General exception has occured:\n" << except.what() << std::endl;
 	}
 	
 	return 0;
