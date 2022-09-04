@@ -72,7 +72,6 @@ int Run()
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
 
 	//float vertices[] = {
 	//	// positions          // colors           // texture coords
@@ -227,7 +226,7 @@ void RenderBiggerObjects(Shader& shader)
 	for (int i{ 0 }; i < cubePositions.size(); ++i)
 	{
 		glm::mat4 boxModel;
-		boxModel = Transform(cubePositions[i], boxScale * 1.1f, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
+		boxModel = Transform(cubePositions[i], boxScale * 1.04f, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
 
 		shader.SetMat4f("model", glm::value_ptr(boxModel));
 

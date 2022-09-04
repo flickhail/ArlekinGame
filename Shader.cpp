@@ -6,15 +6,19 @@
 #include <sstream>
 #include <iostream>
 #include <format>
+#include <stdexcept>
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {
 	constexpr int infoLogBufSize{ 512 };
+
 	std::string vertexCode;
 	std::string fragmentCode;
 	
+
 	try
 	{
+		
 		std::ifstream vertexFileStream;
 		std::ifstream fragmentFileStream;
 		vertexFileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -42,7 +46,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 
 	const char* vertShaderCode = vertexCode.c_str();
 	const char* fragShaderCode = fragmentCode.c_str();
-
 	unsigned int vertex{};
 	unsigned int fragment{};
 	int success{};

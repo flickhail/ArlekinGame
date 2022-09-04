@@ -5,8 +5,8 @@ class Timer
 {
 public:
 	Timer() = default;
-	void Reset();
-	double Elapsed() const;
+	void Reset() noexcept;
+	double Elapsed() const noexcept;
 
 private:
 	using clock_type = std::chrono::steady_clock;
