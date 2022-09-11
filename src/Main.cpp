@@ -8,7 +8,6 @@ extern int windowWidth { 800 };
 extern int windowHeight{ 600 };
 
 // Initializes the graphics routine
-// 
 // Exceptions: [runtime_error]
 static void GraphicsInit()
 {
@@ -49,6 +48,7 @@ int main()
 	{
 		std::cout << "Runtime exception has occured:\n" << except.what() << std::endl;
 	}
+
 	catch (const std::exception& except)
 	{
 		std::cout << "General exception has occured:\n" << except.what() << std::endl;

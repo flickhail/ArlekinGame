@@ -139,30 +139,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Callback.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Console.cpp" />
-    <ClCompile Include="glad\src\glad.c" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="src\Callback.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Console.cpp" />
+    <ClCompile Include="src\glad\src\glad.c" />
+    <ClCompile Include="src\Main.cpp" />
     <None Include="shaders\basic.vert">
       <FileType>Document</FileType>
     </None>
-    <ClCompile Include="RenderLoop.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="src\RenderLoop.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Timer.cpp" />
     <None Include="shaders\simpColor.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Callback.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Console.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Main.h" />
-    <ClInclude Include="RenderLoop.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="src\Callback.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Console.h" />
+    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Main.h" />
+    <ClInclude Include="src\RenderLoop.h" />
+    <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\basic.frag" />

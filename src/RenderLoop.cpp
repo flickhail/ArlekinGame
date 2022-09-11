@@ -23,11 +23,12 @@ static glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rot
 void RenderObjects(Shader& shader);
 void RenderBiggerObjects(Shader& shader);
 
-std::string ShaderPath	{ "shaders\\" };
-std::string vertBasic	{ ShaderPath + "basic.vert" };
-std::string fragBasic	{ ShaderPath + "basic.frag" };
-std::string vertStencil	{ ShaderPath + "simpColor.vert" };
-std::string fragStencil	{ ShaderPath + "simpColor.frag" };
+std::string ShaderPath	 { "src\\shaders\\" };
+std::string ResourcesPath{ "resources\\" };
+std::string vertBasic	 { ShaderPath + "basic.vert" };
+std::string fragBasic	 { ShaderPath + "basic.frag" };
+std::string vertStencil	 { ShaderPath + "simpColor.vert" };
+std::string fragStencil	 { ShaderPath + "simpColor.frag" };
 
 glm::vec3 boxPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 boxRotation = glm::vec3(glm::radians(45.0f), 0.0f, 0.0f);
@@ -152,8 +153,8 @@ int Run()
 	Shader shader		{ vertBasic,   fragBasic   };
 	Shader shaderStencil{ vertStencil, fragStencil };
 
-	Texture container	{ "container.jpg" };
-	Texture face		{ "awesomeface.png", GL_RGBA };
+	Texture container	{ ResourcesPath + "container.jpg" };
+	Texture face		{ ResourcesPath + "awesomeface.png", GL_RGBA };
 
 	shader.Use();
 	shader.SetInt("texSample1", 0);
