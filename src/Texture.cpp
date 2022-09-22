@@ -18,7 +18,7 @@ Texture::Texture(const std::string& imagePath, GLenum format)
 	if (!data)
 	{
 		stbi_image_free(data);
-		std::string error = std::format("Error: cannot load image file:\n{}", imagePath);
+		std::string error = std::format("Texture.Texture error: cannot load image file:\n{}", imagePath);
 		throw std::runtime_error(error);
 	}
 

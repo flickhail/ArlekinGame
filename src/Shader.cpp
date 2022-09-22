@@ -41,7 +41,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 	}
 	catch (const std::ios_base::failure&)
 	{
-		throw std::runtime_error("Error: can't open shader files");
+		throw std::runtime_error("Shader.Shader error: can't open shader files");
 	}
 
 	const char* vertShaderCode = vertexCode.c_str();
@@ -58,7 +58,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(vertex, infoLogBufSize, nullptr, infoLog);
-		std::string error = std::format("Error: vertex shader has not successful compiled:\n{}", infoLog);
+		std::string error = std::format("Shader.Shader error: vertex shader has not successful compiled:\n{}", infoLog);
 		throw std::runtime_error(error);
 	}
 
@@ -69,7 +69,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 	if (!success)
 	{
 		glGetShaderInfoLog(fragment, infoLogBufSize, nullptr, infoLog);
-		std::string error = std::format("Error: fragment shader has not successful compiled:\n{}", infoLog);
+		std::string error = std::format("Shader.Shader error: fragment shader has not successful compiled:\n{}", infoLog);
 		throw std::runtime_error(error);
 	}
 
@@ -81,7 +81,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 	if (!success)
 	{
 		glGetProgramInfoLog(ID, infoLogBufSize, nullptr, infoLog);
-		std::string error = std::format("Error: shader program has not successful compiled:\n{}", infoLog);
+		std::string error = std::format("Shader.Shader error: shader program has not successful compiled:\n{}", infoLog);
 		throw std::runtime_error(error);
 	}
 

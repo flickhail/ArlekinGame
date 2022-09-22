@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:/heh/projects/prog/cpp/lib/compiled/GLAD/include",
+                "D:/heh/projects/prog/cpp/lib/compiled/GLFW/include",
+                "D:/heh/projects/prog/cpp/lib/compiled/"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "D:/ProgramData/VisualStudioIDE/VC/Tools/MSVC/14.33.31629/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}

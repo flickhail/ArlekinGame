@@ -139,7 +139,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Callback.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Console.cpp" />
     <ClCompile Include="src\glad\src\glad.c" />
@@ -147,19 +146,18 @@
     <None Include="shaders\basic.vert">
       <FileType>Document</FileType>
     </None>
-    <ClCompile Include="src\RenderLoop.cpp" />
+    <ClCompile Include="src\GameLoop.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\Timer.cpp" />
     <None Include="shaders\simpColor.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Callback.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Console.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Main.h" />
-    <ClInclude Include="src\RenderLoop.h" />
+    <ClInclude Include="src\GameLoop.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\Timer.h" />
