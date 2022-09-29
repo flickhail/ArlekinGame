@@ -1,122 +1,77 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <string>
-#include <iostream>
-#include <stdexcept>
 
 class Camera
 {
 public:
-	struct Settings2D
-	{
-		Settings2D(int width, int height) : Width(width), Height(height) { }
-		int Width{};
-		int Height{};
-	};
+	//				[CONSTRUCTORS]
 
-	// The camera settings that represent all 3D properties of the camera.
-	// Use this struct if you want to create the 3D camera
-	struct Settings3D
-	{
-		Settings3D(float fov, float aspectRatio) : FOV(fov), AspectRatio(aspectRatio) { }
-		float FOV{};
-		float AspectRatio{};
-	};
-
-	enum class ProjectionMode
-	{
-		Undefined,
-		Orthographic,
-		Perspective
-	};
-
-	//						[CONSTRUCTORS]
-
-	Camera();
-	Camera(const glm::vec3& position, const Settings2D& settings, float nearPlane = 0.1f, float farPlane = 1000.0f);
-	Camera(const glm::vec3& position, const Settings3D& settings, float nearPlane = 0.1f, float farPlane = 1000.0f);
+	Camera() = default;
+	Camera(const glm::vec3& pos, float nearPlane, float farPlane) noexcept;
+	virtual ~Camera() = default;
 
 
-	//						[GETTERS]
+	//				[GETTERS]
 
-	const glm::mat4& View()			const;
-	const glm::mat4& Projection()	const;
-	float			 FOV()			const;
-	float			 Aspect()		const;
-	float			 NearPlane()	const;
-	float			 FarPlane()		const;
+	const glm::mat4& View()			const noexcept { return m_View; }
+	const glm::mat4& Projection() 	const noexcept { return m_Projection; }
+	float			 NearPlane() 	const noexcept { return m_NearPlane; }
+	float			 FarPlane() 	const noexcept { return m_FarPlane; }
 
-	const glm::vec3& Position()		const;
-	const glm::vec3& Front()		const;
-	const glm::vec3& Right()		const;
-	const glm::vec3& Up()			const;
+	const glm::vec3& Position()		const noexcept { return m_Position; }
+	const glm::vec3& Front()		const noexcept { return m_FrontVec; }
+	const glm::vec3& Right()		const noexcept { return m_RightVec; }
+	const glm::vec3& Up()			const noexcept { return m_LocalUpVec; }
 
-
-	//						[SETTERS]
-
-	void Position		(const glm::vec3& newPosition);
-	void Orthographic	(int newWidth, int newHeight);
-	void Perspective	(const Settings3D& newSettings, float nearPlane, float farPlane);
-	void FOV			(float newFov);
-	void Aspect			(float newWidth, float newHeight);
-	void ClipDistance	(float newNearPlane, float newFarPlane);
+	// Gets the speed value (distance per frame)
+	float Speed() const noexcept { return m_Speed; }
+	float Scale() const noexcept { return m_Scale; }
 
 
-	//						[UTILITY]
+	//				[SETTERS]
 
-	void LookAt(const glm::vec3& target);
-	void Transform2D(const glm::vec3& translation, float zRotation = 0.0f);
-	void Transform3D(const glm::vec3& translation, const glm::vec3& rotation = glm::vec3{ 0.0f });
-	void Rotate(float deltaYaw, float deltaPitch);
-	void Zoom(float scrollOffset);
-	std::string ToString()	const;
+	virtual void Position(const glm::vec3& newPosition) = 0;
+	virtual void ClipDistance(float newNearPlane, float newFarPlane) = 0;
+
+	// Changes the scale of the world
+	virtual float Scale(float newScale) = 0;
+
+	// Sets the speed value (distance per frame)
+	float Speed(float newSpeed);
 
 
-	//						[OPERATIONS]
+	//				[UTILITY]
+
+	virtual void Move(const glm::vec3& movementVector) = 0;
+	virtual std::string ToString() const;
+	//virtual void 
+
+
+	//				[OPERATIONS]
 
 	friend std::ostream& operator<<(std::ostream& out, const Camera& camera);
-	
 
-private:
-	//			[GENERAL CAMERA MEMBERS]
-
-	glm::vec3 m_Position = glm::vec3(0.0f);
-	glm::vec3 m_Front = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 m_Right = glm::vec3(1.0f, 0.0f, 0.0f);
-	glm::vec3 m_WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 m_LocalUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	float m_NearPlane{ 0.1f };
-	float m_FarPlane{ 100.0f };
-	ProjectionMode m_ProjectionMode{ ProjectionMode::Undefined };
+protected:
+	glm::vec3 m_Position	{};
+	glm::vec3 m_FrontVec	{ 0.0f, 0.0f, -1.0f };
+	glm::vec3 m_RightVec	{ 1.0f, 0.0f, 0.0f };
+	glm::vec3 m_WorldUpVec	{ 0.0f, 1.0f, 0.0f };
+	glm::vec3 m_LocalUpVec	{ 0.0f, 1.0f, 0.0f };
 	glm::mat4 m_View{};
+	glm::mat4 m_Projection{};
 
-	//			[2D MODE MEMBERS]
+	float m_Scale{ 1.0f };
+	float m_Speed{ 1.0f };
 
-	// In pixels
-	int m_Width{};
-
-	// In pixels
-	int m_Height{};
-	glm::mat4 m_Orthographic{};
+	float m_NearPlane{};
+	float m_FarPlane{};
 
 
-	//			[3D MODE MEMBERS]
+	//				[UTILITY]
 
-	// In radians
-	float m_FOV{};
-	float m_AspectRatio{};
-
-	// In radians
-	float m_Pitch{};
-
-	// In radians
-	float m_Yaw{};
-
-	glm::mat4 m_Perspective{};
-
-	//			[UTILITY]
-
-	// Only calculates the transform matrix. Functionally pure
-	glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rotation) const;
+	static glm::mat4 Transform(const glm::vec3& pos, const glm::vec3& scale = { 1.0f, 1.0f, 1.0f }, const glm::vec3& rotation = { 0.0f, 0.0f, 0.0f }) noexcept;
+	virtual void UpdateViewMatrix() = 0;
+	virtual void UpdateProjectionMatrix() = 0;
 };
-

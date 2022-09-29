@@ -2,7 +2,8 @@
 #include "Timer.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Camera.h"
+#include "CameraOLD.h"
+#include "Camera2D.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,24 +33,7 @@ namespace GameEngine
 	const std::string vertBasic		{ ShaderPath + "basic.vert" };
 	const std::string fragBasic		{ ShaderPath + "basic.frag" };
 
-	const glm::vec3 boxPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-	const glm::vec3 boxRotation = glm::vec3(glm::radians(45.0f), 0.0f, 0.0f);
-	const glm::vec3 boxScale = glm::vec3(1.0f, 1.0f, 1.0f);
-
-	const std::vector<glm::vec3> cubePositions{
-			glm::vec3(0.0f,  0.0f,  0.0f),
-			glm::vec3(2.0f,  5.0f, -15.0f),
-			glm::vec3(-1.5f, -2.2f, -2.5f),
-			glm::vec3(-3.8f, -2.0f, -12.3f),
-			glm::vec3(2.4f, -0.4f, -3.5f),
-			glm::vec3(-1.7f,  3.0f, -7.5f),
-			glm::vec3(1.3f, -2.0f, -2.5f),
-			glm::vec3(1.5f,  2.0f, -2.5f),
-			glm::vec3(1.5f,  0.2f, -1.5f),
-			glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-
-	Camera camera;
+	Camera2D camera2D;
 
 	float deltaTime{};
 	int windowWidth{};
@@ -101,50 +85,6 @@ namespace GameEngine
 		glEnable(GL_DEPTH_TEST);
 		//glEnable(GL_CULL_FACE);
 
-		float cubeVertices[] = {
-			// Back face
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-			 0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-			// Front face
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-			 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-			 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-			// Left face
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-			// Right face
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-			 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
-			 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-			 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-			 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
-			 // Bottom face
-			 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-			  0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
-			  0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-			  0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-			 -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-			 -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-			 // Top face
-			 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-			  0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-			  0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
-			  0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-			 -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-			 -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left        
-		};
 		float cubeSingle[] =
 		{
 			-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
@@ -179,9 +119,7 @@ namespace GameEngine
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 
-		//camera = Camera{ glm::vec3{ 0.0f, 0.0f, 3.0f }, Camera::Settings3D{ 45.0f, static_cast<float>(windowWidth) / windowHeight } };
-		camera = Camera{ glm::vec3{ 0.0f, 0.0f, 3.0f }, Camera::Settings2D{ windowWidth, windowHeight }, 0.1f, 1000.0f };
-		std::cout << camera;
+		camera2D = Camera2D{ { 0.0f, 0.0f, 3.0f }, (float)windowWidth, (float)windowHeight, 0.1f, 100.0f };
 
 		Timer performanceTimer{};
 		Timer globalTimer{};
@@ -200,7 +138,7 @@ namespace GameEngine
 		while (!glfwWindowShouldClose(mainWindow))
 		{
 			performanceTimer.Reset();
-			std::cout << camera;
+			std::cout << camera2D;
 
 			float currentFrame = globalTimer.Elapsed();
 			deltaTime = currentFrame - lastFrame;
@@ -213,10 +151,15 @@ namespace GameEngine
 			//glm::mat4 view = camera.LookAt(camera.Position() + camera.Front());
 			//camera.Transform2D(glm::vec3{ 0.0f });
 
-			shader.Use();
-			shader.SetMat4f("view", glm::value_ptr(camera.View()));
-			shader.SetMat4f("projection", glm::value_ptr(camera.Projection()));
+			glm::mat4 boxModel = Transform(glm::vec3{ 0.0f }, glm::vec3{ 1.0f }, glm::vec3{ 0.0f });
+			//glm::mat4 camProj = glm::ortho(-(float)windowWidth/2.0f, (float)windowWidth/2.0f, -(float)windowHeight/2.0f, (float)windowHeight/2.0f, 0.1f, 100.0f);
+			//camProj = glm::mat4{ 1.0f };
 
+			shader.Use();
+			shader.SetMat4f("model", glm::value_ptr(boxModel));
+			shader.SetMat4f("view", glm::value_ptr(camera2D.View()));
+			shader.SetMat4f("projection", glm::value_ptr(camera2D.Projection()));
+			
 			glBindVertexArray(cubeVAO);
 			container.Bind(GL_TEXTURE0);
 			face.Bind(GL_TEXTURE1);
@@ -238,16 +181,9 @@ namespace GameEngine
 	void RenderObjects(Shader& shader)
 	{
 		shader.Use();
-		for (int i{ 0 }; i < cubePositions.size(); ++i)
-		{
-			glm::mat4 boxModel;
-			boxModel = Transform(cubePositions[i], boxScale, 14.5f * i * glm::vec3(1.0f, 0.3f, 0.5f));
 
-			shader.SetMat4f("model", glm::value_ptr(boxModel));
-
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		}
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 
 	// translation - vector by which you want to change position
@@ -274,19 +210,19 @@ namespace GameEngine
 			glfwSetWindowShouldClose(window, true);
 		}
 
-		const float cameraSpeed = 2.5f * deltaTime;
+		camera2D.Speed(2.5f * deltaTime);
 
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-			camera.Position(camera.Position() - cameraSpeed * camera.Right());
+			camera2D.Move(-camera2D.Right() * camera2D.Speed());
 
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-			camera.Position(camera.Position() + cameraSpeed * camera.Right());
+			camera2D.Move(camera2D.Right() * camera2D.Speed());
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-			camera.Position(camera.Position() + cameraSpeed * camera.Front());
+			camera2D.Move(camera2D.Up() * camera2D.Speed());
 
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-			camera.Position(camera.Position() - cameraSpeed * camera.Front());
+			camera2D.Move(-camera2D.Up() * camera2D.Speed());
 	}
 
 
@@ -296,7 +232,7 @@ namespace GameEngine
 		glViewport(0, 0, width, height);
 		windowHeight = height;
 		windowWidth = width;
-		camera.Aspect(width, height);
+		camera2D.
 	}
 
 	// Mouse movement callback for the window

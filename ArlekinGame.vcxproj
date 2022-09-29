@@ -140,6 +140,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Camera2D.cpp" />
+    <ClCompile Include="src\CameraOLD.cpp" />
     <ClCompile Include="src\Console.cpp" />
     <ClCompile Include="src\glad\src\glad.c" />
     <ClCompile Include="src\Main.cpp" />
@@ -154,6 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Camera2D.h" />
+    <ClInclude Include="src\Camera3D.h" />
+    <ClInclude Include="src\CameraOLD.h" />
     <ClInclude Include="src\Console.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Main.h" />
