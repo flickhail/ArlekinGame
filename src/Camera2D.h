@@ -9,14 +9,21 @@ public:
 	//				[CONSTRUCTORS]
 
 	Camera2D() = default;
-	Camera2D(const glm::vec3& position, float width, float height, float nearPlane, float farPlane);
+	Camera2D(const glm::vec3& position, float aspectRatio, float nearPlane, float farPlane);
+
+
+	//				[GETTERS]
+
+	const glm::vec2& Scale() const noexcept { return m_Scale; }
 
 
 	//				[SETTERS]
 
 	void Position(const glm::vec3& newPosition) override;
 	void ClipDistance(float newNearPlane, float newFarPlane) override;
-	float Scale(float newScale) override;
+	void AspectRatio(float newAspectRatio);
+	glm::vec2 Scale(const glm::vec2& newScale);
+
 
 
 	//				[UTILITY]
@@ -25,8 +32,8 @@ public:
 	std::string ToString() const override;
 
 private:
-	float m_Width{};
-	float m_Height{};
+	float m_AspectRatio{};
+	glm::vec2 m_Scale{ 1.0f };
 
 
 	//				[UTILITY]

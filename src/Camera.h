@@ -27,16 +27,12 @@ public:
 
 	// Gets the speed value (distance per frame)
 	float Speed() const noexcept { return m_Speed; }
-	float Scale() const noexcept { return m_Scale; }
 
 
 	//				[SETTERS]
 
 	virtual void Position(const glm::vec3& newPosition) = 0;
 	virtual void ClipDistance(float newNearPlane, float newFarPlane) = 0;
-
-	// Changes the scale of the world
-	virtual float Scale(float newScale) = 0;
 
 	// Sets the speed value (distance per frame)
 	float Speed(float newSpeed);
@@ -62,7 +58,7 @@ protected:
 	glm::mat4 m_View{};
 	glm::mat4 m_Projection{};
 
-	float m_Scale{ 1.0f };
+	
 	float m_Speed{ 1.0f };
 
 	float m_NearPlane{};

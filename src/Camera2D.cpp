@@ -6,10 +6,9 @@
 
 //					[CONSTRUCTORS]
 
-Camera2D::Camera2D(const glm::vec3& position, float width, float height, float nearPlane, float farPlane)
+Camera2D::Camera2D(const glm::vec3& position, float aspectRatio, float nearPlane, float farPlane)
 	: Camera(position, nearPlane, farPlane)
-	, m_Width{ width }
-	, m_Height{ height }
+	, m_AspectRatio{ aspectRatio }
 {
 	UpdateViewMatrix();
 	UpdateProjectionMatrix();
@@ -39,10 +38,25 @@ void Camera2D::ClipDistance(float nearPlane, float farPlane)
 	UpdateProjectionMatrix();
 }
 
-float Camera2D::Scale(float newScale)
+void Camera2D::AspectRatio(float newAspectRatio)
 {
-	// TODO: m_Scale and validation check
-	return 0;
+	if (newAspectRatio <= 0)
+		throw std::runtime_error{ "Camera2D.AspectRatio error: new aspect ration value is non-positive\n" };
+
+	m_AspectRatio = newAspectRatio;
+
+	UpdateProjectionMatrix();
+}
+
+glm::vec2 Camera2D::Scale(const glm::vec2& newScale)
+{
+	glm::vec2 previousValue{ m_Scale.x, m_Scale.y };
+
+	m_Scale.x = newScale.x;
+	m_Scale.y = newScale.y;
+
+	UpdateProjectionMatrix();
+	return previousValue;
 }
 
 
@@ -57,7 +71,7 @@ void Camera2D::Move(const glm::vec3& moveVector)
 
 std::string Camera2D::ToString() const
 {
-	return std::format("{}Width: [{}]; Height: [{}]\n", Camera::ToString(), m_Width, m_Height);
+	return std::format("{}Aspect: [{}]\n", Camera::ToString(), m_AspectRatio);
 }
 
 
@@ -65,11 +79,15 @@ std::string Camera2D::ToString() const
 
 void Camera2D::UpdateViewMatrix()
 {
-	m_View = Transform(m_Position, { m_Scale, m_Scale, m_Scale });
+	m_View = Transform(m_Position);
 }
 
 void Camera2D::UpdateProjectionMatrix()
 {
-	float aspectRatio{ m_Width / m_Height };
-	m_Projection = glm::ortho(-aspectRatio, aspectRatio, -1.0f, 1.0f, m_NearPlane, m_FarPlane);
+	if(m_AspectRatio >= 1)
+		m_Projection = glm::ortho(-m_AspectRatio * m_Scale.x, m_AspectRatio * m_Scale.x, -m_Scale.y, m_Scale.y, m_NearPlane, m_FarPlane);
+	else
+	{
+		m_Projection = glm::ortho(-m_Scale.x, m_Scale.x, -m_Scale.y / m_AspectRatio, m_Scale.y / m_AspectRatio, m_NearPlane, m_FarPlane);
+	}
 }

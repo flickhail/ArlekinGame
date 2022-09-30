@@ -119,7 +119,7 @@ namespace GameEngine
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 
-		camera2D = Camera2D{ { 0.0f, 0.0f, 3.0f }, (float)windowWidth, (float)windowHeight, 0.1f, 100.0f };
+		camera2D = Camera2D{ { 0.0f, 0.0f, 3.0f }, (float)windowWidth / (float)windowHeight, 0.1f, 100.0f };
 
 		Timer performanceTimer{};
 		Timer globalTimer{};
@@ -232,7 +232,7 @@ namespace GameEngine
 		glViewport(0, 0, width, height);
 		windowHeight = height;
 		windowWidth = width;
-		camera2D.
+		camera2D.AspectRatio((float)width / (float)height);
 	}
 
 	// Mouse movement callback for the window
@@ -256,6 +256,10 @@ namespace GameEngine
 
 	static void WindowEvent::MouseScroll(GLFWwindow* window, double xOffset, double yOffset)
 	{
-		//camera.Zoom(yOffset);
+		static float scale{ 1.0f };
+
+		scale -= (float)yOffset * 0.1f;
+
+		camera2D.Scale({ scale, scale });
 	}
 }
