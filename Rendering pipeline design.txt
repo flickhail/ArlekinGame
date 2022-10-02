@@ -1,0 +1,21 @@
+
+
+Entities that need to be for 2D rendering:
+* VBO - for vertices
+* VAO - for simplicity
+* EBO? - for simple and optimize rendering
+* Texture - for visual image
+* Shader - for applying the right way of rendering
+
+
+Possible interface for 2D renderer:
+
+int CreateObject(Texture tex, Shader shader);
+RenderAllObjects();
+RenderID(int objectID);
+RegisterShader(Shader shader);
+
+-----------
+maybe create a structure like:
+renderable object HAVE shader id (this object will be rendered with this shader)
+RENDERER HAVE list of all objects that want to be drawn and list of all shader IDs

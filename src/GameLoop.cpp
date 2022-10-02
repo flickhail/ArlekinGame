@@ -1,9 +1,10 @@
-#include "GameLoop.h"
-#include "Timer.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "CameraOLD.h"
-#include "Camera2D.h"
+#include "GameLoop.hpp"
+#include "Timer.hpp"
+#include "GameEngine/Shader.hpp"
+#include "GameEngine/Texture.hpp"
+#include "GameEngine/CameraOLD.hpp"
+#include "GameEngine/Camera2D.hpp"
+#include "GameEngine/Renderer.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -19,7 +20,7 @@ namespace GameEngine
 {
 	static void ProcessInput(GLFWwindow* window);
 	static glm::mat4 Transform(glm::vec3 translation, glm::vec3 scale, glm::vec3 rotation);
-	void RenderObjects(Shader& shader);
+	void RenderObjects(const Shader& shader);
 
 	namespace WindowEvent
 	{
@@ -121,9 +122,8 @@ namespace GameEngine
 
 		camera2D = Camera2D{ { 0.0f, 0.0f, 3.0f }, (float)windowWidth / (float)windowHeight, 0.1f, 100.0f };
 
-		Timer performanceTimer{};
-		Timer globalTimer{};
-		
+		Timer<float> performanceTimer{};
+		Timer<float> globalTimer{};
 		Texture container{ ResourcesPath + "container.jpg" };
 		Texture face{ ResourcesPath + "awesomeface.png", GL_RGBA };
 
@@ -138,7 +138,7 @@ namespace GameEngine
 		while (!glfwWindowShouldClose(mainWindow))
 		{
 			performanceTimer.Reset();
-			std::cout << camera2D;
+			//std::cout << camera2D;
 
 			float currentFrame = globalTimer.Elapsed();
 			deltaTime = currentFrame - lastFrame;
@@ -178,7 +178,7 @@ namespace GameEngine
 		return 0;
 	}
 
-	void RenderObjects(Shader& shader)
+	void RenderObjects(const Shader& shader)
 	{
 		shader.Use();
 

@@ -1,7 +1,9 @@
-#include "Camera2D.h"
+#include "Camera2D.hpp"
 
 #include <string>
 #include <format>
+
+using namespace GameEngine;
 
 
 //					[CONSTRUCTORS]

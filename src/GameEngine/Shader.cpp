@@ -1,4 +1,4 @@
-#include "Shader.h"
+#include "Shader.hpp"
 
 #include <glad/glad.h>
 #include <glfw3.h>
@@ -7,6 +7,8 @@
 #include <iostream>
 #include <format>
 #include <stdexcept>
+
+using namespace GameEngine;
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
 {

@@ -1,10 +1,10 @@
-#include "Main.h"
+#include "Main.hpp"
 
 int main()
 {
 	try
 	{
-		GameEngine::Run(800, 600);
+		GameEngine::Run(950	, 600);
 	}
 
 	catch (const std::runtime_error& except)

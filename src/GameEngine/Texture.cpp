@@ -1,4 +1,4 @@
-#include "Texture.h"
+#include "Texture.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -6,6 +6,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+using namespace GameEngine;
 
 Texture::Texture(const std::string& imagePath, GLenum format)
 {

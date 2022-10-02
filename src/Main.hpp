@@ -1,4 +1,4 @@
 #pragma once
-#include "GameLoop.h"
+#include "GameLoop.hpp"
 #include <iostream>
 #include <stdexcept>

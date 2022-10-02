@@ -1,7 +1,10 @@
-#include "Camera.h"
+#include "Camera.hpp"
 #include <format>
 #include <iostream>
 #include <string>
+
+using namespace GameEngine;
+
 
 //						[CONSTRUCTORS]
 
@@ -36,7 +39,7 @@ std::string Camera::ToString() const
 
 //						[OPERATIONS]
 
-std::ostream& operator<<(std::ostream& out, const Camera& camera)
+std::ostream& GameEngine::operator<<(std::ostream& out, const Camera& camera)
 {
 	out << camera.ToString();
 	return out;
